@@ -81,6 +81,7 @@ public:
 
 		m_finished = false;
 		m_tf_listener = new tf::TransformListener();
+		
 
 		m_ft_calib = new FTCalib();
 	}
@@ -176,6 +177,8 @@ public:
         // whether the user wants to use random poses
         n_.param("random_poses", m_random_poses, false);
 
+		n_.param("gravity_comp_poses", m_gravity_comp_poses, false);
+
         // number of random poses
         n_.param("number_random_poses", m_number_random_poses, 30);
 
@@ -215,8 +218,10 @@ public:
     // connects to the move arm servers
 	void init()
 	{
-		m_group = new moveit::planning_interface::MoveGroupInterface(m_moveit_group_name);
-		m_group->setPlannerId("RRTConnectkConfigDefault");
+		if(!m_gravity_comp_poses){
+			m_group = new moveit::planning_interface::MoveGroupInterface(m_moveit_group_name);
+			m_group->setPlannerId("RRTConnectkConfigDefault");
+		}
 	}
 
 
@@ -231,7 +236,7 @@ public:
 		// either find poses from the parameter server
 		// poses should be in "pose%d" format (e.g. pose0, pose1, pose2 ...)
 		// and they should be float arrays of size 6
-		if(!m_random_poses)
+		if(!m_random_poses && !m_gravity_comp_poses)
 		{
 			if(!getPose("pose"+ss.str(), pose))
 			{
@@ -254,14 +259,33 @@ public:
 			pose_stamped.pose = pose_;
 			pose_stamped.header.frame_id = m_poses_frame_id;
 			pose_stamped.header.stamp = ros::Time::now();
-
 			m_group->setPoseTarget(pose_stamped);
 
+		}
+		else if(m_gravity_comp_poses){
+
+			if(m_pose_counter<m_number_random_poses){
+
+				ROS_INFO("Move robot in gravity comp to next pose and press ENTER");
+				std::cin.get();
+				ROS_INFO("Got it!! %d");
+
+			}
+			else{
+
+				ROS_INFO("Finished group %s random poses", m_group->getName().c_str());
+				m_finished = true;
+				return true;
+
+			}
+
+			
 		}
 		else // or execute random poses
 		{
 			if(m_pose_counter<m_number_random_poses)
 			{
+				m_group->setMaxVelocityScalingFactor(0.3);
 				m_group->setRandomTarget();
 				ROS_INFO("Executing pose %d",m_pose_counter);
 			}
@@ -276,7 +300,9 @@ public:
 
 
 		m_pose_counter++;
-		m_group->move();
+		if(!m_gravity_comp_poses) {
+			m_group->move();
+		}
 		ROS_INFO("Finished executing pose %d", m_pose_counter-1);
 		return true;
 	}
@@ -545,7 +571,7 @@ private:
 
 	// if the user wants to execute just random poses
 	// default: false
-	bool m_random_poses;
+	bool m_random_poses, m_gravity_comp_poses;
 
 	// number of random poses
 	// default: 30
