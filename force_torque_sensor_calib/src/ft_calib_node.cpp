@@ -70,8 +70,8 @@ public:
 
 
 
-		topicSub_ft_raw_ = n_.subscribe("ft_raw", 1, &FTCalibNode::topicCallback_ft_raw, this);
-		topicSub_Accelerometer_ = n_.subscribe("imu", 1, &FTCalibNode::topicCallback_imu, this);
+		topicSub_ft_raw_ = n_.subscribe("/robot/limb/right/ft_sensor_raw", 1, &FTCalibNode::topicCallback_ft_raw, this);
+		topicSub_Accelerometer_ = n_.subscribe("/robot/limb/right/imu_sensor", 1, &FTCalibNode::topicCallback_imu, this);
 
 		m_pose_counter = 0;
 		m_ft_counter = 0;

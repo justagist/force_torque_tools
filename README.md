@@ -13,13 +13,6 @@ Tools for gravity compensation and sensor calibration for wrist-mounted force-to
 Installing
 ---------------------------------------------
 
-Make sure you have a working catkin workspace, as described at:
-http://www.ros.org/wiki/catkin/Tutorials/create_a_workspace
-
-Also make sure you have git installed:
-
-    sudo apt-get install git-core
-
 Change directory to the source folder of your catkin workspace.
 If, for instance, your workspace is `~/catkin_ws`, make sure there is
 a `src/` folder within it, then execute:
@@ -28,7 +21,7 @@ a `src/` folder within it, then execute:
 
 Download the metapackage from the github repository (<ros_distro> may be `groovy` or `hydro`):
 
-    git clone -b <ros_distro> https://github.com/kth-ros-pkg/force_torque_tools.git
+    git clone -b <ros_distro> https://github.com/justagist/force_torque_tools.git
 
 Compile your catkin workspace:
 
